@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSO Generator</title>
+    <meta name="description" content="Encode your html to JSO (Javascript Overlay).">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+
+<body class="bg-gray-100">
+    <div class="container mx-auto max-w-xl p-8" id="app">
+        <h1 class="text-2xl font-bold mb-4">JSO Generator</h1>
+        <p class="text-gray-600 mb-4">Encode your html to JSO (Javascript Overlay).</p>
+        <div>
+            <div class="mb-4">
+            	<textarea name="input" class="textarea" placeholder="Masukan Script Yang Mau Di Pake"></textarea><br><br>
+		<input type="button" onclick="runCharCodeAt()" value="Convert" class="btn"><br><br>
+                <textarea v-model="html" class="w-full px-3 py-2 rounded-lg border border-gray-300 resize-none focus:outline-none focus:border-blue-500" placeholder="Enter your html here..." rows="6"></textarea>
+            </div>
+            <div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200" @click="submit">Submit</button>
+            </div>
+        </div>
+        <div v-show="result">
+            <p class="text-gray-800 mb-1 text-lg mt-5">Result:</p>
+            <div class="flex items-center">
+                <input type="text" class="w-full px-3 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Addon To Right" :value="result" id="pilih" readonly>
+                <div class="input-group-append">
+                    <button type="button" @click="copy_text()" class="flex items-center px-3 py-2 rounded-r-md bg-blue-500 hover:bg-blue-600 text-white focus:outline-none focus:bg-blue-600" id="basic-addon4">
+                        Copy
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="text-center py-4 bg-gray-200 mt-8">
+        <div class="container mx-auto">
+            <p class="text-sm text-gray-600">© 2020 <a href="https://zone-xsec.com/" target="_blank">ZONE-XSEC</a>. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://tools.zone-xsec.com/api/hit?m=js"></script>
+       <script>
+		function runCharCodeAt() {
+			input = document.charCodeAt.input.value;
+			output = "";
+			for(i=0; i<input.length; ++i) {
+				if (output != "") output += ", ";
+				output += input.charCodeAt(i);
+			}
+			document.charCodeAt.output.value = output;
+		}
+	</script>
+    <script>
+        const {
+            createApp
+        } = Vue
+        createApp({
+            data() {
+                return {
+                    html: '',
+                    result: ``
+                }
+            },
+            methods: {
+                submit() {
+                    if (this.html == '') {
+                        this.toast("Enter your script!", "linear-gradient(to right, #FF0000, #FF4500)")
+                        return;
+                    }
+                    let enc = btoa(this.html)
+                    let text = `document.documentElement.innerHTML=atob('${enc}');`
+                    let url = 'https://jso-tools.z-x.my.id/post'
+                    axios.post(url, text)
+                        .then(res => {
+                            if (res.status == 200) {
+                                if (res.data.path) {
+                                    this.result = `<script type="text/javascript" src="https://jso-tools.z-x.my.id/raw/~/${res.data.path}">` + '<' + '/script>';
+                                    this.toast("Created Successfully", "linear-gradient(to right, #00FF00, #008000)")
+                                } else {
+                                    this.toast("Failed", "linear-gradient(to right, #FF0000, #FF4500)")
+                                }
+                            }
+                        }).catch(err => {
+                            this.toast("Failed", "linear-gradient(to right, #FF0000, #FF4500)")
+                        })
+                },
+                copy_text() {
+                    const el = document.createElement('textarea');
+                    el.value = this.result;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                },
+                toast(text = "HI!", bg) {
+                    Toastify({
+                        text: text,
+                        newWindow: true,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: bg,
+                        },
+                    }).showToast();
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
