@@ -8,6 +8,7 @@ section {
   place-content: center;
 }
 h2 {
+  font-family: 'HACKED', sans-serif;
   font-size: 20vw;
   color: white;
 }
